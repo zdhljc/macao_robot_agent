@@ -1,0 +1,293 @@
+﻿# Tasks: 小扬同学 - AI会员管理助手
+
+**Input**: Design documents from `/specs/001-xiao-yang-member/`
+
+**Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/ ✅, quickstart.md ✅
+
+**Tests**: Included per constitution III. Test-First (NON-NEGOTIABLE)
+
+**Organization**: Tasks grouped by user story for independent implementation and testing.
+
+## Format: `- [ ] [ID] [P?] [Story?] Description with file path`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2)
+
+---
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Project initialization and basic structure
+
+- [ ] T001 Create project directory structure per plan.md in backend/ and frontend-miniprogram/
+- [ ] T002 Initialize Python project with FastAPI dependencies in backend/requirements.txt
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) in backend/pyproject.toml
+- [ ] T004 [P] Configure environment management with .env.example in backend/.env.example
+- [ ] T005 [P] Initialize WeChat Mini Program project structure in frontend-miniprogram/
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+
+⚠️ **CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T006 Setup PostgreSQL connection + SQLAlchemy + Alembic migrations in backend/src/core/database.py and backend/alembic/
+- [ ] T007 [P] Implement JWT authentication with wx.login in backend/src/core/security.py and backend/src/api/auth.py
+- [ ] T008 [P] Setup FastAPI app with CORS, middleware, error handlers in backend/src/main.py
+- [ ] T009 [P] Configure structured logging and global exception handling in backend/src/core/logging.py
+- [ ] T010 [P] Create Member base model (all fields per data-model.md) in backend/src/models/member.py
+- [ ] T011 Setup Redis connection and caching utilities in backend/src/core/cache.py
+- [ ] T012 [P] Setup Chroma vector DB and embedding pipeline in backend/src/ai/knowledge_base.py
+- [ ] T013 [P] Create DeepSeek API client wrapper with streaming support in backend/src/ai/deepseek_client.py
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 3: User Story 1 - 新会员入会申请 (Priority: P1) 🎯 MVP
+
+**Goal**: 新申请人完成从咨询→填表→初審→终審→上传缴费凭证→入会确认的完整流程
+
+**Independent Test**: 模拟一位新申请人完成完整入会流程，验证每个状态转换正确
+
+### Tests for User Story 1 ⚠️
+
+> **Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T014 [P] [US1] Contract test for POST /applications and GET /applications/{id} in backend/tests/contract/test_applications.py
+- [ ] T015 [P] [US1] Integration test for full application flow (submit→screen→review→pay→confirm) in backend/tests/integration/test_application_flow.py
+
+### Implementation for User Story 1
+
+- [ ] T016 [P] [US1] Create Application model (all fields per data-model.md) in backend/src/models/application.py
+- [ ] T017 [P] [US1] Create ConstitutionRules model (JSONB rule storage) in backend/src/models/constitution_rules.py
+- [ ] T018 [US1] Implement ScreeningService (章程规则驱动的自动化初審) in backend/src/services/screening_service.py
+- [ ] T019 [US1] Implement ApplicationService (CRUD + state transitions + duplicate detection) in backend/src/services/application_service.py
+- [ ] T020 [US1] Implement POST /applications endpoint (form submission + validation) in backend/src/api/applications.py
+- [ ] T021 [US1] Implement GET /applications/{id} + GET /applications (staff list) in backend/src/api/applications.py
+- [ ] T022 [US1] Implement POST /applications/{id}/screening (AI初審回调) in backend/src/api/applications.py
+- [ ] T023 [US1] Implement POST /applications/{id}/final-review (理监事会终審) in backend/src/api/applications.py
+- [ ] T024 [US1] Implement POST /applications/{id}/payment-proof (凭证上传+存档) in backend/src/api/applications.py
+- [ ] T025 [US1] Implement POST /applications/{id}/verify-payment (行政确认缴费→创建Member) in backend/src/api/applications.py
+
+**Checkpoint**: User Story 1 独立可测 — 完整入会流程端到端通过
+
+- [ ] T025a [US1] Implement终審 timeout escalation (24h超时自动催办理监事会) in backend/src/services/application_service.py
+- [ ] T025b [US1] Implement缴费确认 timeout escalation (3天催办, 7天升级理监事会) in backend/src/services/application_service.py
+- [ ] T025c [P] [US1] Implement WeChat template message + SMS notification dispatch (FR-010b) in backend/src/services/notification_service.py
+- [ ] T025d [US1] Implement驳回理由/重申请 resubmission workflow (初審+终審不通过) in backend/src/services/application_service.py
+
+---
+
+## Phase 4: User Story 2 - 会员咨询服务 (Priority: P1)
+
+**Goal**: AI 驱动的 FAQ 问答 + 智能转接人工；知识库可维护
+
+**Independent Test**: 提问标准FAQ→验证RAG准确回复；提问复杂问题→验证转接人工机制
+
+### Tests for User Story 2 ⚠️
+
+- [ ] T026 [P] [US2] Contract test for POST /chat/message (SSE) and GET /chat/history in backend/tests/contract/test_chat.py
+
+### Implementation for User Story 2
+
+- [ ] T027 [P] [US2] Create FAQ model + seed script (澳门直播协会常见问答) in backend/src/models/faq.py and backend/src/scripts/seed_faq.py
+- [ ] T028 [US2] Implement RAG pipeline (LangChain: embed→Chroma retrieve→context→DeepSeek generate) in backend/src/ai/rag_pipeline.py
+- [ ] T029 [US2] Implement ChatService (意图分类: FAQ命中→RAG / 复杂问题→转人工) in backend/src/services/chat_service.py
+- [ ] T030 [US2] Implement POST /chat/message (SSE streaming response) in backend/src/api/chat.py
+- [ ] T031 [US2] Implement GET /chat/history (对话历史分页) in backend/src/api/chat.py
+- [ ] T032 [US2] Implement human handoff logic (低相似度 → 标记待处理 → 通知行政同事) in backend/src/services/chat_service.py
+- [ ] T033 [US2] Implement FAQ CRUD management endpoints (staff) in backend/src/api/chat.py
+
+**Checkpoint**: User Story 2 独立可测 — FAQ 问答准确，复杂问题正确转接
+
+- [ ] T033a [US2] Implement AI reply feedback mechanism (thumb up/down + admin review trigger) in backend/src/api/chat.py
+- [ ] T033b [US2] Implement content safety guard (AI判断违规→拒绝回复+记录日志) in backend/src/services/chat_service.py
+- [ ] T033c [US2] Implement human handoff escalation (24h超时催办, 48h升级理监事会) in backend/src/services/chat_service.py
+
+---
+
+## Phase 5: User Story 3 - 会员资料管理与查询 (Priority: P2)
+
+**Goal**: 会员自助查询/更新个人资料；行政同事全量管理+批量导出；RBAC 权限控制
+
+**Independent Test**: 会员查询自己资料→更新成功；行政同事查看所有会员→批量导出CSV；会员越权被拒绝
+
+### Tests for User Story 3 ⚠️
+
+- [ ] T034 [P] [US3] Contract test for GET/PATCH /members/me and staff member endpoints in backend/tests/contract/test_members.py
+
+### Implementation for User Story 3
+
+- [ ] T035 [P] [US3] Implement RBAC middleware (role claims → member/staff/board access control per FR-019) in backend/src/core/security.py
+- [ ] T036 [US3] Implement GET /members/me + PATCH /members/me (会员自助) in backend/src/api/members.py
+- [ ] T037 [US3] Implement staff endpoints: GET /members, GET /members/{id}, PATCH /members/{id} in backend/src/api/members.py
+- [ ] T038 [US3] Implement GET /members/export (CSV 批量导出) in backend/src/api/members.py
+- [ ] T039 [US3] Add audit logging for member data changes (who changed what when) in backend/src/services/member_service.py
+
+**Checkpoint**: User Story 3 独立可测 — 权限分级正确，CRUD + 导出功能完整
+
+- [ ] T039a [US3] Implement membership status auto-update (会费到期→过期, 续费→恢复) in backend/src/services/member_service.py
+- [ ] T039b [US3] Implement sensitive field change approval workflow (姓名/手机需行政审批) in backend/src/services/member_service.py
+- [ ] T039c [US3] Implement permission boundary enforcement (越权访问→友好提示+日志) in backend/src/core/security.py
+
+---
+
+## Phase 6: User Story 4 - 会员活动与通知 (Priority: P2)
+
+**Goal**: 活动浏览/报名/取消；自动发送活动通知、缴费提醒、系统更新通知
+
+**Independent Test**: 创建活动→会员报名→名额满；触发缴费提醒→验证通知送达
+
+### Tests for User Story 4 ⚠️
+
+- [ ] T040 [P] [US4] Contract test for event and notification endpoints in backend/tests/contract/test_events_notifications.py
+
+### Implementation for User Story 4
+
+- [ ] T041 [P] [US4] Create Event and EventRegistration models in backend/src/models/event.py
+- [ ] T042 [P] [US4] Create Notification model in backend/src/models/notification.py
+- [ ] T043 [US4] Implement EventService + endpoints (CRUD, register, cancel, capacity check) in backend/src/services/event_service.py and backend/src/api/events.py
+- [ ] T044 [US4] Implement NotificationService + endpoints (send, list, unread count) in backend/src/services/notification_service.py and backend/src/api/notifications.py
+- [ ] T045 [US4] Implement scheduled notification jobs: 会费到期前7天提醒 + 活动通知 in backend/src/services/notification_service.py
+
+**Checkpoint**: User Story 4 独立可测 — 活动全流程 + 通知自动触发
+
+- [ ] T045a [US4] Implement notification retry with SMS fallback + in-app notification center in backend/src/services/notification_service.py
+- [ ] T045b [US4] Implement event cancellation/change manual mass notification in backend/src/api/events.py
+
+---
+
+## Phase 7: User Story 5 - 会员等级与数据分析 (Priority: P3)
+
+**Goal**: 活跃度+贡献度自动评分；普通→高级→理事三级晋升；会员数据趋势分析
+
+**Independent Test**: 模拟会员活跃行为→验证积分累计→查看晋升差距；查询分析仪表盘
+
+### Tests for User Story 5 ⚠️
+
+- [ ] T046 [P] [US5] Contract test for tier and analytics endpoints in backend/tests/contract/test_tier_analytics.py
+
+### Implementation for User Story 5
+
+- [ ] T047 [US5] Implement tier evaluation engine (activity_score + contribution_score → tier per ConstitutionRules) in backend/src/services/tier_service.py
+- [ ] T048 [US5] Implement GET /members/me/tier (等级+积分+晋升差距) in backend/src/api/members.py
+- [ ] T049 [US5] Implement analytics endpoints: GET /analytics/members + GET /analytics/activity in backend/src/api/analytics.py
+- [ ] T050 [US5] Implement tier promotion workflow (自动评估 → 提交理监事会确认) in backend/src/services/tier_service.py
+
+**Checkpoint**: User Story 5 独立可测 — 等级体系运转，数据分析仪表盘可用
+
+- [ ] T050a [US5] Implement tier downgrade logic (不达标自动降级+通知) in backend/src/services/tier_service.py
+- [ ] T050b [US5] Implement quarterly scheduling for tier evaluation in backend/src/services/tier_service.py
+- [ ] T050c [US5] Implement monthly analytics report auto-generation (每月1号月报) in backend/src/services/analytics_service.py
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T051 [P] Rate limiting middleware (per FR: 200 daily, 50 concurrent) in backend/src/core/middleware.py
+- [ ] T052 [P] Input validation hardening (phone format, XSS防护, file upload limits) in backend/src/core/validation.py
+- [ ] T053 [P] Create WeChat Mini Program chat page shell (基础聊天界面) in frontend-miniprogram/pages/index/
+- [ ] T054 [P] Create WeChat Mini Program application form page in frontend-miniprogram/pages/application/
+- [ ] T054a [P] Create Web H5 chat page (协会官网嵌入) in frontend-web/src/pages/chat/
+- [ ] T054b [P] Create Web H5 application form page in frontend-web/src/pages/application/
+- [ ] T055 Run full integration test suite (pytest backend/tests/ -v) per quickstart.md scenarios
+- [ ] T056 [P] Performance optimization: add Redis caching for FAQ responses in backend/src/services/chat_service.py and member tier queries in backend/src/services/tier_service.py
+- [ ] T056a [P] Implement system update notification template (FR-018) in backend/src/services/notification_service.py
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies — can start immediately
+- **Foundational (Phase 2)**: Depends on Setup — BLOCKS all user stories
+- **US1 (Phase 3)**: Depends on Foundational — MVP! 🎯
+- **US2 (Phase 4)**: Depends on Foundational — can run parallel with US1
+- **US3 (Phase 5)**: Depends on Foundational — can run parallel with US1/US2
+- **US4 (Phase 6)**: Depends on Foundational — can run parallel with US1-US3
+- **US5 (Phase 7)**: Depends on Foundational + US3 (Member data needed)
+- **Polish (Phase 8)**: Depends on all desired stories complete
+
+### Within Each User Story
+
+- Tests MUST be written and FAIL before implementation
+- Models → Services → Endpoints → Integration
+- Core implementation before integration
+
+### Parallel Opportunities
+
+- All [P] tasks within a phase can run in parallel
+- US1 and US2 can be developed in parallel after Foundational
+- US3 and US4 can be developed in parallel after Foundational
+- All contract tests marked [P] within a story can run in parallel
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Step 1: Launch all tests together (must FAIL first):
+Task: "T014 Contract test for POST /applications in backend/tests/contract/test_applications.py"
+Task: "T015 Integration test for full application flow in backend/tests/integration/test_application_flow.py"
+
+# Step 2: Launch all models together:
+Task: "T016 Create Application model in backend/src/models/application.py"
+Task: "T017 Create ConstitutionRules model in backend/src/models/constitution_rules.py"
+
+# Step 3: Services (sequential due to dependencies)
+# Step 4: Endpoints (can parallelize by endpoint file)
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: 端到端入会流程通过
+5. Deploy/demo MVP
+
+### Incremental Delivery
+
+1. Setup + Foundational → 基础设施就绪
+2. Add US1 → 入会流程可用 → **Deploy MVP** 🎯
+3. Add US2 → AI 问答上线 → Deploy
+4. Add US3 → 会员资料管理 → Deploy
+5. Add US4 → 活动+通知 → Deploy
+6. Add US5 → 等级+分析 → Deploy
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: US1 (入会申请)
+   - Developer B: US2 (咨询服务)
+   - Developer C: US3 (资料管理)
+3. Then:
+   - Developer A: US4 (活动通知)
+   - Developer B: US5 (等级分析)
+   - Developer C: Polish
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies — safe to parallelize
+- [Story] label maps task to specific user story for traceability (US1-US5)
+- Each user story is independently completable and testable
+- Verify tests FAIL before implementing (Red-Green-Refactor per constitution III)
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- All file paths are relative to repository root
+- Backend paths: `backend/`; Mini Program paths: `frontend-miniprogram/`
