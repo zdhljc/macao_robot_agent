@@ -69,7 +69,9 @@
 - [ ] T021 [US1] Implement GET /applications/{id} + GET /applications (staff list) in backend/src/api/applications.py
 - [ ] T022 [US1] Implement POST /applications/{id}/screening (AI初審回调) in backend/src/api/applications.py
 - [ ] T023 [US1] Implement POST /applications/{id}/final-review (理监事会终審) in backend/src/api/applications.py
+- [ ] T023a [P] [US1] Create Web H5 终審审批页面 (理监事会: 待审列表、查看申请、通过/驳回+理由) in frontend-web/pages/board/review/
 - [ ] T024 [US1] Implement POST /applications/{id}/payment-proof (凭证上传+存档) in backend/src/api/applications.py
+- [ ] T024a [P] [US1] Create Web H5 缴费审核页面 (行政同事: 待审核凭证列表、查看截图、确认/退回) in frontend-web/pages/staff/payment-verify/
 - [ ] T025 [US1] Implement POST /applications/{id}/verify-payment (行政确认缴费→创建Member) in backend/src/api/applications.py
 
 **Checkpoint**: User Story 1 独立可测 — 完整入会流程端到端通过
@@ -78,6 +80,8 @@
 - [ ] T025b [US1] Implement缴费确认 timeout escalation (3天催办, 7天升级理监事会) in backend/src/services/application_service.py
 - [ ] T025c [P] [US1] Implement WeChat template message + SMS notification dispatch (FR-010b) in backend/src/services/notification_service.py
 - [ ] T025d [US1] Implement驳回理由/重申请 resubmission workflow (初審+终審不通过) in backend/src/services/application_service.py
+- [ ] T025e [P] [US1] Create 申请进度追踪页 (状态条/驳回理由/缴费指引+倒计时/凭证上传入口/重传入口) in frontend-miniprogram/pages/application/track/ and frontend-web/pages/application/track/
+- [ ] T025f [P] [US1] Create 驳回重申请流程UI (保留原表单数据/显示驳回理由/修改后重新提交) in frontend-miniprogram/pages/application/resubmit/ and frontend-web/pages/application/resubmit/
 
 ---
 
@@ -132,6 +136,7 @@
 - [ ] T039a [US3] Implement membership status auto-update (会费到期→过期, 续费→恢复) in backend/src/services/member_service.py
 - [ ] T039b [US3] Implement sensitive field change approval workflow (姓名/手机需行政审批) in backend/src/services/member_service.py
 - [ ] T039c [US3] Implement permission boundary enforcement (越权访问→友好提示+日志) in backend/src/core/security.py
+- [ ] T039d [P] [US3] Create Web H5 会员管理后台页面 (行政同事: 搜索、查看详情、编辑、敏感字段审批、导出CSV) in frontend-web/pages/staff/members/
 
 ---
 
@@ -157,6 +162,7 @@
 
 - [ ] T045a [US4] Implement notification retry with SMS fallback + in-app notification center in backend/src/services/notification_service.py
 - [ ] T045b [US4] Implement event cancellation/change manual mass notification in backend/src/api/events.py
+- [ ] T045c [P] [US4] Create Web H5 通知发送页面 (行政同事: 按等级/状态筛选会员、群发通知) in frontend-web/pages/staff/notifications/
 
 ---
 
@@ -195,6 +201,7 @@
 - [ ] T054 [P] Create WeChat Mini Program application form page in frontend-miniprogram/pages/application/
 - [ ] T054a [P] Create Web H5 chat page (协会官网嵌入) in frontend-web/src/pages/chat/
 - [ ] T054b [P] Create Web H5 application form page in frontend-web/src/pages/application/
+- [ ] T054c [P] Create 会员个人中心 (资料查看编辑/等级积分/活动报名/通知收件箱) in frontend-miniprogram/pages/center/ and frontend-web/pages/member/center/
 - [ ] T055 Run full integration test suite (pytest backend/tests/ -v) per quickstart.md scenarios
 - [ ] T056 [P] Performance optimization: add Redis caching for FAQ responses in backend/src/services/chat_service.py and member tier queries in backend/src/services/tier_service.py
 - [ ] T056a [P] Implement system update notification template (FR-018) in backend/src/services/notification_service.py
