@@ -13,7 +13,7 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "sub": "<member_id>",
-  "role": "member|staff|board",
+  "role": "member|staff|root",
   "exp": 1715678900
 }
 ```
@@ -123,12 +123,27 @@ Authorization: Bearer <jwt_token>
 - Response 200: `text/csv` 文件流
 
 ### GET /members/me/tier
-查询当前会员等级与晋升条件
-- Response 200: `{ "tier": "高级", "activity_score": 25, "contribution_score": 18, "next_tier": "理事", "requirements": { "activity_min": 40, "contribution_min": 30 }, "gap": { "activity": 15, "contribution": 12 } }`
+查询当前会员等级与年费
+- Response 200: `{ "tier": "高级", "annual_fee": 2000 }`
 
 ---
 
 ## 5. 活动 (Event)
+
+### POST /events
+（staff）创建活动
+- Body: `{ "title": "...", "description": "...", "event_date": "...", "location": "...", "price_normal": 100, "price_advanced": 80, "max_participants": 50 }`
+- Response 201: `{ "id": "uuid" }`
+
+### PATCH /events/{id}
+（staff）编辑活动
+- Body: `{ "title": "...", "location": "..." }`
+- Response 200: `{ "id": "uuid" }`
+
+### DELETE /events/{id}
+（staff）取消活动
+- Response 200: `{ "status": "已取消" }`
+
 
 ### GET /events
 活动列表
@@ -168,7 +183,7 @@ Authorization: Bearer <jwt_token>
 ## 7. 数据统计 (Analytics)
 
 ### GET /analytics/members
-（staff/board）会员数据概览
+（staff）会员数据概览
 - Response 200: `{ "total": 500, "by_tier": { "普通": 300, "高级": 150, "理事": 50 }, "by_status": { "在籍": 480, "停用": 10, "过期": 10 }, "monthly_growth": [...] }`
 
 ### GET /analytics/activity

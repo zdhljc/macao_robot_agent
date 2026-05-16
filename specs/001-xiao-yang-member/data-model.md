@@ -28,7 +28,8 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | qualifications | TEXT | NULLABLE | 相关资质 |
 | tier | ENUM | NOT NULL, DEFAULT '普通' | 会员等级：普通/高级/理事 |
 | annual_fee | INTEGER | NOT NULL, DEFAULT 500 | 年费金额（普通500/高级2000/理事0） |
-| is_board | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否为理事（TRUE可后台增加其他理事） |
+| is_board | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否为理事（TRUE可后台增加其他理事） |
+
 | status | ENUM | NOT NULL, DEFAULT '在籍' | 状态：在籍/停用/过期 |
 | joined_at | TIMESTAMP | NOT NULL | 入会日期 |
 | dues_expire_at | DATE | NOT NULL | 会费到期日 |
@@ -48,6 +49,8 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | id | UUID | PK | 申请唯一标识 |
+| username | VARCHAR(50) | UNIQUE, NOT NULL | 用户名 |
+| id_number | VARCHAR(18) | UNIQUE, NOT NULL | 身份证号码 |
 | applicant_name | VARCHAR(50) | NOT NULL | 申请人姓名 |
 | applicant_phone | VARCHAR(20) | NOT NULL | 申请人电话 |
 | applicant_email | VARCHAR(100) | NULLABLE | 申请人邮箱 |
@@ -72,7 +75,7 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 待审核 → 初審通过 / 初審不通过
 初審通过 → 终審通过 / 终審不通过
 终審通过 → 待缴费
-待缴费 → 已缴费 (凭证上传+行政确认)
+待缴费 → 已缴费 (凭证上传+root确认)
 待缴费 → 已过期 (逾期7天未缴纳)
 已缴费 → 已入会 (会员记录创建)
 ```
@@ -109,8 +112,11 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | description | TEXT | NULLABLE | 活动描述 |
 | event_date | TIMESTAMP | NOT NULL | 活动时间 |
 | location | VARCHAR(200) | NOT NULL | 活动地点 |
+| price_normal | INTEGER | NOT NULL, DEFAULT 0 | 普通会员费用 |
+| price_advanced | INTEGER | NULLABLE | 高级会员8折费用（NULL=自动计算 price_normal*0.8） |
 | max_participants | INTEGER | NULLABLE | 人数上限（NULL=不限） |
 | registration_status | ENUM | NOT NULL, DEFAULT '开放' | 报名状态：开放/已满/截止 |
+| created_by | UUID | NOT NULL, FK→Member | 创建者（行政同事） |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | 创建时间 |
 
 ### 5. EventRegistration（活动报名）
@@ -156,13 +162,16 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 - Member.email: 标准 email 格式（可选）
 - Application: 提交时 career_history 和 qualifications 至少填一项
 - Application: 同一 phone 的待审核/初審通过/终審通过/待缴费申请最多一条（防重复）
+- Application: username 和 id_number 全系统唯一，被占用时拒绝提交
 - EventRegistration: event_id + member_id 唯一约束
 - ConstitutionRules: rule_key 同类规则同时仅一条有效（expired_at IS NULL）
 - Member.annual_fee: 普通=500, 高级=2000, 理事=0
+- Member.username: 全系统唯一，终身不可修改
+- Member.id_number: 全系统唯一，终身不可修改
 
 ## Indexes
 
-- Member: (openid), (phone), (tier), (status)
-- Application: (status), (applicant_phone), (submitted_at)
+- Member: (openid), (username), (id_number), (phone), (tier), (status)
+- Application: (status), (username), (id_number), (applicant_phone), (submitted_at)
 - Notification: (member_id, send_status), (type)
 - Event: (event_date), (registration_status)

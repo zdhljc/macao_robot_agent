@@ -37,7 +37,7 @@
 - [ ] T007 [P] Implement JWT authentication with wx.login in backend/src/core/security.py and backend/src/api/auth.py
 - [ ] T008 [P] Setup FastAPI app with CORS, middleware, error handlers in backend/src/main.py
 - [ ] T009 [P] Configure structured logging and global exception handling in backend/src/core/logging.py
-- [ ] T010 [P] Create Member base model (all fields per data-model.md) in backend/src/models/member.py
+- [ ] T010 [P] Create Member base model (含 username/id_number 唯一不可变字段) in backend/src/models/member.py
 - [ ] T011 Setup Redis connection and caching utilities in backend/src/core/cache.py
 - [ ] T012 [P] Setup Chroma vector DB and embedding pipeline in backend/src/ai/knowledge_base.py
 - [ ] T013 [P] Create DeepSeek API client wrapper with streaming support in backend/src/ai/deepseek_client.py
@@ -61,7 +61,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Create Application model (all fields per data-model.md) in backend/src/models/application.py
+- [ ] T016 [P] [US1] Create Application model (含 username/id_number 唯一不可变字段) in backend/src/models/application.py
 - [ ] T017 [P] [US1] Create ConstitutionRules model (JSONB rule storage) in backend/src/models/constitution_rules.py
 - [ ] T017a [US1] Implement ConstitutionRules CRUD API (行政同事管理章程规则) in backend/src/api/constitution_rules.py
 - [ ] T018 [US1] Implement ScreeningService (章程规则驱动的自动化初審) in backend/src/services/screening_service.py
@@ -134,8 +134,7 @@
 
 **Checkpoint**: User Story 3 独立可测 — 权限分级正确，CRUD + 导出功能完整
 
-- [ ] T039a [US3] Implement membership status auto-update (会费到期→过期, 续费→恢复) in backend/src/services/member_service.py
-- [ ] T039b [US3] Implement sensitive field change approval workflow (姓名/手机需 root 审批) in backend/src/services/member_service.py
+- [ ] T039a [US3] Implement membership status auto-update (会费到期→过期, 续费→恢复) in backend/src/services/member_service.py
 - [ ] T039c [US3] Implement permission boundary enforcement (越权访问→友好提示+日志) in backend/src/core/security.py
 - [ ] T039d [P] [US3] Create Web H5 会员管理后台页面 (行政同事: 搜索、查看详情、编辑、导出CSV) in frontend-web/pages/staff/members/
 - [ ] T039e [P] [US1] Create Web H5 章程规则管理页面 (行政同事: 规则增删改、版本管理) in frontend-web/pages/staff/constitution-rules/
@@ -144,9 +143,9 @@
 
 ## Phase 6: User Story 4 - 会员活动与通知 (Priority: P2)
 
-**Goal**: 活动浏览/报名/取消；自动发送活动通知、缴费提醒、系统更新通知
+**Goal**: 行政创建/编辑/取消活动（含普通价+高级折扣价）；会员浏览/报名/取消；名额满自动关闭；活动取消自动通知已报名会员
 
-**Independent Test**: 创建活动→会员报名→名额满；触发缴费提醒→验证通知送达
+**Independent Test**: 行政创建活动→群发通知→会员报名→名额满→会员取消→活动取消通知
 
 ### Tests for User Story 4 ⚠️
 
@@ -165,12 +164,14 @@
 - [ ] T045a [US4] Implement notification retry with SMS fallback + in-app notification center in backend/src/services/notification_service.py
 - [ ] T045b [US4] Implement event cancellation/change manual mass notification in backend/src/api/events.py
 - [ ] T045c [P] [US4] Create Web H5 通知发送页面 (行政同事: 按等级/状态筛选会员、群发通知) in frontend-web/pages/staff/notifications/
+- [ ] T045d [P] [US4] Create Web H5 活动管理页面 (行政同事: 创建/编辑/取消活动，查看报名名单) in frontend-web/pages/staff/events/
+- [ ] T045e [P] [US4] Create 小程序/Web H5 活动列表+详情+报名页面 (会员: 浏览活动、查看详情、报名/取消) in frontend-miniprogram/pages/events/ and frontend-web/pages/member/events/
 
 ---
 
 ## Phase 7: User Story 5 - 会员等级管理 (Priority: P3)
 
-**Goal**: 三级等级（普通500/年、高级2000/年含活动折扣、理事可后台增加），行政同事手动管理等级变更，root为默认理事
+**Goal**: 三级等级（普通500/年、高级2000/年含活动8折、理事可后台增加），行政同事手动管理等级变更，root为默认理事
 
 **Independent Test**: 初始化root理事 → 行政改会员等级 → 会员端查看等级+年费
 
