@@ -78,7 +78,7 @@ Authorization: Bearer <jwt_token>
 - Response 200: `{ "status": "初審通过" }`
 
 ### POST /applications/{id}/final-review
-（board）终審结果
+（root理事）终審结果
 - Body: `{ "result": "pass|fail", "comment": "同意入会" }`
 - Response 200: `{ "status": "终審通过" }`
 
@@ -88,7 +88,7 @@ Authorization: Bearer <jwt_token>
 - Response 200: `{ "status": "待缴费", "payment_proof_url": "/uploads/payment/xxx.jpg" }`
 
 ### POST /applications/{id}/verify-payment
-（staff）确认缴费
+（root理事）确认缴费
 - Response 200: `{ "status": "已缴费" }`
 
 ---
@@ -177,6 +177,26 @@ Authorization: Bearer <jwt_token>
 
 ---
 
+## 8. 章程规则管理 (ConstitutionRules)
+
+### GET /constitution-rules
+（staff/board）查询所有现行章程规则
+- Query: `?rule_type=入会条件`
+- Response 200: `{ "items": [{ "id": "uuid", "rule_type": "入会条件", "rule_key": "min_age", "rule_value": { "operator": ">=", "value": 18 }, "version": 1, "effective_at": "..." }] }`
+
+### POST /constitution-rules
+（staff）新增章程规则
+- Body: `{ "rule_type": "入会条件", "rule_key": "min_age", "rule_value": { "operator": ">=", "value": 18 }, "description": "最低年龄要求" }`
+- Response 201: `{ "id": "uuid", "version": 1 }`
+
+### PATCH /constitution-rules/{id}
+（staff）修改章程规则（自动递增版本号，旧版本标记 expired_at）
+- Body: `{ "rule_value": { "operator": ">=", "value": 21 } }`
+- Response 200: `{ "id": "uuid", "version": 2 }`
+
+### DELETE /constitution-rules/{id}
+（staff）停用章程规则（设置 expired_at）
+- Response 200: `{ "id": "uuid", "expired_at": "..." }`
 ## Error Response Format
 
 所有错误响应遵循统一格式：

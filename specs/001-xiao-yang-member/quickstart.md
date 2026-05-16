@@ -79,7 +79,7 @@ cd frontend-miniprogram
 
 1. **入会流程**: 微信登录 → 咨询入会条件 → 填表提交 → 初審 → 上传凭证 → 入会成功
 2. **咨询流程**: 提问入会条件 → RAG 回答 → 复杂问题转人工
-3. **等级查询**: 登录 → 查看等级 → 查看晋升差距
+3. **等级查询**: 登录 → 查看等级 → 查看当前等级与年费
 4. **活动报名**: 浏览活动 → 报名 → 取消报名
 5. **通知**: 活动通知/缴费提醒自动推送
 
@@ -100,7 +100,7 @@ backend/src/
 │   └── faq.py
 ├── services/
 │   ├── chat_service.py      # AI/RAG orchestration
-│   ├── member_service.py    # CRUD + tier logic
+│   ├── member_service.py    # CRUD + tier + fee management
 │   ├── screening_service.py # Application screening
 │   ├── event_service.py
 │   └── notification_service.py
@@ -110,11 +110,13 @@ backend/src/
 │   ├── applications.py
 │   ├── members.py
 │   ├── events.py
+│   ├── constitution_rules.py  # ConstitutionRules CRUD
 │   └── notifications.py
 ├── ai/
 │   ├── deepseek_client.py   # DeepSeek API wrapper
 │   ├── rag_pipeline.py      # LangChain RAG
 │   └── knowledge_base.py    # Chroma management
 └── scripts/
-    └── seed_faq.py          # Initial FAQ seeding
+    ├── seed_faq.py          # Initial FAQ seeding
+    └── seed_root.py        # Seed root 理事
 ```

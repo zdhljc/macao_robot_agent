@@ -63,21 +63,22 @@
 
 - [ ] T016 [P] [US1] Create Application model (all fields per data-model.md) in backend/src/models/application.py
 - [ ] T017 [P] [US1] Create ConstitutionRules model (JSONB rule storage) in backend/src/models/constitution_rules.py
+- [ ] T017a [US1] Implement ConstitutionRules CRUD API (行政同事管理章程规则) in backend/src/api/constitution_rules.py
 - [ ] T018 [US1] Implement ScreeningService (章程规则驱动的自动化初審) in backend/src/services/screening_service.py
 - [ ] T019 [US1] Implement ApplicationService (CRUD + state transitions + duplicate detection) in backend/src/services/application_service.py
 - [ ] T020 [US1] Implement POST /applications endpoint (form submission + validation) in backend/src/api/applications.py
 - [ ] T021 [US1] Implement GET /applications/{id} + GET /applications (staff list) in backend/src/api/applications.py
 - [ ] T022 [US1] Implement POST /applications/{id}/screening (AI初審回调) in backend/src/api/applications.py
-- [ ] T023 [US1] Implement POST /applications/{id}/final-review (理监事会终審) in backend/src/api/applications.py
-- [ ] T023a [P] [US1] Create Web H5 终審审批页面 (理监事会: 待审列表、查看申请、通过/驳回+理由) in frontend-web/pages/board/review/
+- [ ] T023 [US1] Implement POST /applications/{id}/final-review (root理事终審) in backend/src/api/applications.py
+- [ ] T023a [P] [US1] Create Web H5 终審审批页面 (root理事: 待审列表、查看申请、通过/驳回+理由) in frontend-web/pages/board/review/
 - [ ] T024 [US1] Implement POST /applications/{id}/payment-proof (凭证上传+存档) in backend/src/api/applications.py
-- [ ] T024a [P] [US1] Create Web H5 缴费审核页面 (行政同事: 待审核凭证列表、查看截图、确认/退回) in frontend-web/pages/staff/payment-verify/
-- [ ] T025 [US1] Implement POST /applications/{id}/verify-payment (行政确认缴费→创建Member) in backend/src/api/applications.py
+- [ ] T024a [P] [US1] Create Web H5 缴费审核页面 (root理事: 待审核凭证列表、查看截图、确认/退回) in frontend-web/pages/staff/payment-verify/
+- [ ] T025 [US1] Implement POST /applications/{id}/verify-payment (root确认缴费→创建Member) in backend/src/api/applications.py
 
 **Checkpoint**: User Story 1 独立可测 — 完整入会流程端到端通过
 
-- [ ] T025a [US1] Implement终審 timeout escalation (24h超时自动催办理监事会) in backend/src/services/application_service.py
-- [ ] T025b [US1] Implement缴费确认 timeout escalation (3天催办, 7天升级理监事会) in backend/src/services/application_service.py
+- [ ] T025a [US1] Implement 终審 timeout escalation (24h超时自动催办 root) in backend/src/services/application_service.py
+- [ ] T025b [US1] Implement缴费确认 timeout escalation (3天催办 root, 7天升级行政同事) in backend/src/services/application_service.py
 - [ ] T025c [P] [US1] Implement WeChat template message + SMS notification dispatch (FR-010b) in backend/src/services/notification_service.py
 - [ ] T025d [US1] Implement驳回理由/重申请 resubmission workflow (初審+终審不通过) in backend/src/services/application_service.py
 - [ ] T025e [P] [US1] Create 申请进度追踪页 (状态条/驳回理由/缴费指引+倒计时/凭证上传入口/重传入口) in frontend-miniprogram/pages/application/track/ and frontend-web/pages/application/track/
@@ -109,7 +110,7 @@
 
 - [ ] T033a [US2] Implement AI reply feedback mechanism (thumb up/down + admin review trigger) in backend/src/api/chat.py
 - [ ] T033b [US2] Implement content safety guard (AI判断违规→拒绝回复+记录日志) in backend/src/services/chat_service.py
-- [ ] T033c [US2] Implement human handoff escalation (24h超时催办, 48h升级理监事会) in backend/src/services/chat_service.py
+- [ ] T033c [US2] Implement human handoff escalation (24h超时催办, 48h升级 root) in backend/src/services/chat_service.py
 
 ---
 
@@ -134,9 +135,10 @@
 **Checkpoint**: User Story 3 独立可测 — 权限分级正确，CRUD + 导出功能完整
 
 - [ ] T039a [US3] Implement membership status auto-update (会费到期→过期, 续费→恢复) in backend/src/services/member_service.py
-- [ ] T039b [US3] Implement sensitive field change approval workflow (姓名/手机需行政审批) in backend/src/services/member_service.py
+- [ ] T039b [US3] Implement sensitive field change approval workflow (姓名/手机需 root 审批) in backend/src/services/member_service.py
 - [ ] T039c [US3] Implement permission boundary enforcement (越权访问→友好提示+日志) in backend/src/core/security.py
-- [ ] T039d [P] [US3] Create Web H5 会员管理后台页面 (行政同事: 搜索、查看详情、编辑、敏感字段审批、导出CSV) in frontend-web/pages/staff/members/
+- [ ] T039d [P] [US3] Create Web H5 会员管理后台页面 (行政同事: 搜索、查看详情、编辑、导出CSV) in frontend-web/pages/staff/members/
+- [ ] T039e [P] [US1] Create Web H5 章程规则管理页面 (行政同事: 规则增删改、版本管理) in frontend-web/pages/staff/constitution-rules/
 
 ---
 
@@ -166,31 +168,25 @@
 
 ---
 
-## Phase 7: User Story 5 - 会员等级与数据分析 (Priority: P3)
+## Phase 7: User Story 5 - 会员等级管理 (Priority: P3)
 
-**Goal**: 活跃度+贡献度自动评分；普通→高级→理事三级晋升；会员数据趋势分析
+**Goal**: 三级等级（普通500/年、高级2000/年含活动折扣、理事可后台增加），行政同事手动管理等级变更，root为默认理事
 
-**Independent Test**: 模拟会员活跃行为→验证积分累计→查看晋升差距；查询分析仪表盘
+**Independent Test**: 初始化root理事 → 行政改会员等级 → 会员端查看等级+年费
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T046 [P] [US5] Contract test for tier and analytics endpoints in backend/tests/contract/test_tier_analytics.py
+- [ ] T046 [P] [US5] Contract test for tier endpoint in backend/tests/contract/test_tier.py
 
 ### Implementation for User Story 5
 
-- [ ] T047 [US5] Implement tier evaluation engine (activity_score + contribution_score → tier per ConstitutionRules) in backend/src/services/tier_service.py
-- [ ] T048 [US5] Implement GET /members/me/tier (等级+积分+晋升差距) in backend/src/api/members.py
-- [ ] T049 [US5] Implement analytics endpoints: GET /analytics/members + GET /analytics/activity in backend/src/api/analytics.py
-- [ ] T050 [US5] Implement tier promotion workflow (自动评估 → 提交理监事会确认) in backend/src/services/tier_service.py
+- [ ] T047 [US5] Add annual_fee + is_board fields to Member model + migration (annual_fee: 普通=500/高级=2000/理事=0, is_board: 理事=TRUE) in backend/src/models/member.py
+- [ ] T048 [US5] Implement seed script: create root 理事 (name='root', tier='理事', annual_fee=0) on first deploy in backend/src/core/seed.py
+- [ ] T049 [US5] Implement PATCH /members/{id}/tier (行政同事手动修改等级+年费) in backend/src/api/members.py
+- [ ] T050 [US5] Implement GET /members/me/tier (返回当前等级+年费金额)
+- [ ] T050a [US5] Implement root can manage 理事 (root可后台手动增减理事) in backend/src/api/members.py
 
-**Checkpoint**: User Story 5 独立可测 — 等级体系运转，数据分析仪表盘可用
-
-- [ ] T050a [US5] Implement tier downgrade logic (不达标自动降级+通知) in backend/src/services/tier_service.py
-- [ ] T050b [US5] Implement quarterly scheduling for tier evaluation in backend/src/services/tier_service.py
-- [ ] T050c [US5] Implement monthly analytics report auto-generation (每月1号月报) in backend/src/services/analytics_service.py
-
----
-
+**Checkpoint**: User Story 5 独立可测 — 等级手动管理运转
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -201,9 +197,9 @@
 - [ ] T054 [P] Create WeChat Mini Program application form page in frontend-miniprogram/pages/application/
 - [ ] T054a [P] Create Web H5 chat page (协会官网嵌入) in frontend-web/src/pages/chat/
 - [ ] T054b [P] Create Web H5 application form page in frontend-web/src/pages/application/
-- [ ] T054c [P] Create 会员个人中心 (资料查看编辑/等级积分/活动报名/通知收件箱) in frontend-miniprogram/pages/center/ and frontend-web/pages/member/center/
+- [ ] T054c [P] Create 会员个人中心 (资料查看编辑/等级+年费/活动报名/通知收件箱) in frontend-miniprogram/pages/center/ and frontend-web/pages/member/center/
 - [ ] T055 Run full integration test suite (pytest backend/tests/ -v) per quickstart.md scenarios
-- [ ] T056 [P] Performance optimization: add Redis caching for FAQ responses in backend/src/services/chat_service.py and member tier queries in backend/src/services/tier_service.py
+- [ ] T056 [P] Performance optimization: add Redis caching for FAQ responses in backend/src/services/chat_service.py 
 - [ ] T056a [P] Implement system update notification template (FR-018) in backend/src/services/notification_service.py
 
 ---
@@ -283,7 +279,7 @@ With multiple developers:
    - Developer C: US3 (资料管理)
 3. Then:
    - Developer A: US4 (活动通知)
-   - Developer B: US5 (等级分析)
+   - Developer B: US5 (等级管理)
    - Developer C: Polish
 
 ---

@@ -6,7 +6,7 @@
 
 ## Summary
 
-构建「小扬同学」AI 会员管理助手，为澳门直播协会提供智能化的会员入会咨询、资料管理、活动通知、等级评估等核心功能。技术方案采用 DeepSeek 作为 AI 引擎，FastAPI 构建后端 API，PostgreSQL 存储会员数据，向量数据库支撑知识库问答，通过微信小程序和 Web H5 双渠道触达用户。
+构建「小扬同学」AI 会员管理助手，为澳门直播协会提供智能化的会员入会咨询、资料管理、活动通知、等级管理、入会审批等核心功能。技术方案采用 DeepSeek 作为 AI 引擎，FastAPI 构建后端 API，PostgreSQL 存储会员数据，向量数据库支撑知识库问答，通过微信小程序和 Web H5 双渠道触达用户。
 
 ## Technical Context
 
@@ -34,7 +34,7 @@
 
 | Principle | Status | Notes |
 |-----------|--------|-------|
-| I. Spec-First | ✅ Pass | spec.md completed and clarified (4 Q&A resolved) |
+| I. Spec-First | ✅ Pass | spec.md completed and clarified (20+ Q&A resolved (3 sessions)) |
 | II. Template-Fidelity | ✅ Pass | Following plan-template.md structure |
 | III. Test-First (NON-NEGOTIABLE) | ✅ Pass | Tests will be defined per user story; pytest framework selected |
 | IV. Independent Stories | ✅ Pass | 5 user stories (P1-P3), each independently testable and deliverable |

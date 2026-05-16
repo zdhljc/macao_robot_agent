@@ -27,8 +27,8 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | career_history | TEXT | NULLABLE | 从业经历（JSON/自由文本） |
 | qualifications | TEXT | NULLABLE | 相关资质 |
 | tier | ENUM | NOT NULL, DEFAULT '普通' | 会员等级：普通/高级/理事 |
-| activity_score | INTEGER | DEFAULT 0 | 活跃度分（活动参与次数+缴费及时性） |
-| contribution_score | INTEGER | DEFAULT 0 | 贡献度分（行业影响力+推荐新会员） |
+| annual_fee | INTEGER | NOT NULL, DEFAULT 500 | 年费金额（普通500/高级2000/理事0） |
+| is_board | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否为理事（TRUE可后台增加其他理事） |
 | status | ENUM | NOT NULL, DEFAULT '在籍' | 状态：在籍/停用/过期 |
 | joined_at | TIMESTAMP | NOT NULL | 入会日期 |
 | dues_expire_at | DATE | NOT NULL | 会费到期日 |
@@ -58,9 +58,9 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | screening_result | TEXT | NULLABLE | 初審结果详情 |
 | screening_by | VARCHAR(50) | NULLABLE | 初審操作者（系统/AI） |
 | final_review_result | TEXT | NULLABLE | 终審结果详情 |
-| final_review_by | UUID | NULLABLE, FK→Member | 终審操作者（理监事） |
+| final_review_by | UUID | NULLABLE, FK→Member | 终審操作者（root理事） |
 | payment_proof_url | TEXT | NULLABLE | 缴费凭证截图路径 |
-| payment_verified_by | UUID | NULLABLE, FK→Member | 缴费确认者（行政同事） |
+| payment_verified_by | UUID | NULLABLE, FK→Member | 缴费确认者（root理事） |
 | payment_verified_at | TIMESTAMP | NULLABLE | 缴费确认时间 |
 | member_id | UUID | NULLABLE, FK→Member | 成功后关联的会员ID |
 | submitted_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | 提交时间 |
@@ -82,7 +82,7 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | id | UUID | PK | 规则唯一标识 |
-| rule_type | ENUM | NOT NULL | 规则类型：入会条件/等级划分/筛选标准/评估标准 |
+| rule_type | ENUM | NOT NULL | 规则类型：入会条件/筛选标准/评估标准 |
 | rule_key | VARCHAR(50) | NOT NULL | 规则键名 |
 | rule_value | JSONB | NOT NULL | 规则值（灵活的JSON结构） |
 | description | TEXT | NULLABLE | 规则说明 |
@@ -95,8 +95,7 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 ```json
 // 入会条件
 {"rule_type": "入会条件", "rule_key": "min_age", "rule_value": {"operator": ">=", "value": 18}}
-// 等级划分 - 高级会员晋升阈值
-{"rule_type": "等级划分", "rule_key": "advanced_promotion", "rule_value": {"activity_min": 20, "contribution_min": 15}}
+}
 // 初審筛选
 {"rule_type": "筛选标准", "rule_key": "required_fields", "rule_value": ["career_history", "qualifications"]}
 ```
@@ -159,6 +158,7 @@ Member (N) ──< Constitution Rules >── Application  # 章程规则约束�
 - Application: 同一 phone 的待审核/初審通过/终審通过/待缴费申请最多一条（防重复）
 - EventRegistration: event_id + member_id 唯一约束
 - ConstitutionRules: rule_key 同类规则同时仅一条有效（expired_at IS NULL）
+- Member.annual_fee: 普通=500, 高级=2000, 理事=0
 
 ## Indexes
 

@@ -38,7 +38,7 @@
 **Rationale**:
 - PostgreSQL: 会员、申请、活动等结构化数据，支持 JSON 字段灵活扩展
 - Redis: 会话管理、API 限流、热点数据缓存（会员等级、FAQ 高频问答）
-- Chroma: 轻量向量数据库，存储 FAQ 和会员章程的 embedding，驱动 RAG 问答
+- Chroma: 轻量向量数据库，存储 FAQ 的 embedding（章程规则存 PostgreSQL），驱动 RAG 问答
 
 **Alternatives considered**:
 - MySQL: 可用但 JSON 支持不如 PostgreSQL
@@ -49,9 +49,9 @@
 **Decision**: LangChain + Chroma 构建 FAQ RAG 流水线
 
 **Rationale**:
-- 会员章程、入会条件、费用标准等标准化文档 → Chunk → Embed → Chroma
+- 入会条件、费用标准、会员权益等 FAQ 文档 → Chunk → Embed → Chroma（章程规则本身存 PostgreSQL 的 ConstitutionRules 表，不属于向量库）
 - 用户提问 → Embed → Chroma 检索 → 拼接 context → DeepSeek 生成回答
-- 支持定期更新章程知识库（章程变更时重新索引）
+- 支持定期更新 FAQ 知识库（章程变更时重新索引 FAQ）
 - 复杂问题无法匹配时自动触发转接人工机制
 
 **Key design**:
@@ -74,7 +74,7 @@
 
 ## 6. 缴费凭证上传方案
 
-**Decision**: 后端接收图片 → 对象存储（本地文件系统/S3） → 标记 Application 状态为"待审核缴费" → 行政同事后台确认
+**Decision**: 后端接收图片 → 对象存储（本地文件系统/S3） → 标记 Application 状态为"待审核缴费" → root 理事后台确认
 
 **Rationale**:
 - 无需对接第三方支付，符合 Spec 的 Out of Scope 声明
@@ -87,7 +87,7 @@
 
 **Rationale**:
 - JWT 无状态，适合 API 横向扩展
-- Token 中包含角色（member / staff / board），中间件级权限校验
+- Token 中包含角色（member / staff / root理事），中间件级权限校验
 - FR-019 的 RBAC 直接映射为 JWT claims + FastAPI Depends
 
 ## 8. 性能与扩展
