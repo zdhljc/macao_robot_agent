@@ -1,4 +1,4 @@
-﻿# Tasks: 小扬同学 - AI会员管理助手
+# Tasks: 小扬同学 - AI会员管理助手
 
 **Input**: Design documents from `/specs/001-xiao-yang-member/`
 
@@ -79,7 +79,7 @@
 
 - [ ] T025a [US1] Implement 终審 timeout escalation (24h超时自动催办 root) in backend/src/services/application_service.py
 - [ ] T025b [US1] Implement缴费确认 timeout escalation (3天催办 root, 7天升级行政同事) in backend/src/services/application_service.py
-- [ ] T025c [P] [US1] Implement WeChat template message + SMS notification dispatch (FR-010b) in backend/src/services/notification_service.py
+- [ ] T025c [P] [US1] Implement notification dispatch: 小程序订阅消息 (C端) + Web H5 站内通知 (B端) (FR-010b) in backend/src/services/notification_service.py
 - [ ] T025d [US1] Implement驳回理由/重申请 resubmission workflow (初審+终審不通过) in backend/src/services/application_service.py
 - [ ] T025e [P] [US1] Create 申请进度追踪页 (状态条/驳回理由/缴费指引+倒计时/凭证上传入口/重传入口) in frontend-miniprogram/pages/application/track/ and frontend-web/pages/application/track/
 - [ ] T025f [P] [US1] Create 驳回重申请流程UI (保留原表单数据/显示驳回理由/修改后重新提交) in frontend-miniprogram/pages/application/resubmit/ and frontend-web/pages/application/resubmit/
@@ -161,7 +161,7 @@
 
 **Checkpoint**: User Story 4 独立可测 — 活动全流程 + 通知自动触发
 
-- [ ] T045a [US4] Implement notification retry with SMS fallback + in-app notification center in backend/src/services/notification_service.py
+- [ ] T045a [US4] Implement C端小程序订阅消息 + B端站内通知 + 通知收件箱沉淀 in backend/src/services/notification_service.py
 - [ ] T045b [US4] Implement event cancellation/change manual mass notification in backend/src/api/events.py
 - [ ] T045c [P] [US4] Create Web H5 通知发送页面 (行政同事: 按等级/状态筛选会员、群发通知) in frontend-web/pages/staff/notifications/
 - [ ] T045d [P] [US4] Create Web H5 活动管理页面 (行政同事: 创建/编辑/取消活动，查看报名名单) in frontend-web/pages/staff/events/
@@ -201,7 +201,7 @@
 - [ ] T054c [P] Create 会员个人中心 (资料查看编辑/等级+年费/活动报名/通知收件箱) in frontend-miniprogram/pages/center/ and frontend-web/pages/member/center/
 - [ ] T055 Run full integration test suite (pytest backend/tests/ -v) per quickstart.md scenarios
 - [ ] T056 [P] Performance optimization: add Redis caching for FAQ responses in backend/src/services/chat_service.py 
-- [ ] T056a [P] Implement system update notification template (FR-018) in backend/src/services/notification_service.py
+- [ ] T056a [P] Implement system update notification dispatch (FR-018) in backend/src/services/notification_service.py
 
 ---
 
